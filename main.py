@@ -5,6 +5,8 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.screenmanager import ScreenManager, Screen
+from client import *
+from iss import MyDataHandler, MyData
 
 kv = """
 <Row@RecycleKVIDsDataViewBehavior+BoxLayout>:
@@ -17,7 +19,7 @@ kv = """
     value: ''
     Button:
         id: name
-        on_press: app.transition()
+        on_press: app.transition(self)
 
 <MainScreen>:
     canvas:
@@ -72,7 +74,7 @@ kv = """
                 size_hint: [0.1, 1]
                 on_press: root.manager.current = 'main'
             Label:
-                text: 'Наименование'  
+                id: nameShare  
         Label:
             text: 'График'  
         BoxLayout:
@@ -89,9 +91,27 @@ kv = """
 Builder.load_string(kv)
 
 
+def getCompanyShares():
+    my_config = Config(user='', password='')
+    my_auth = MicexAuth(my_config)
+    iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
+    market = 'shares'
+    limit = 50
+    iss.get_sec_list(market, limit)
+    return iss.handler.data.history
+
+idShares = getCompanyShares()
+
+def getFullNameShare(idShareName):
+    for elem in idShares:
+        if elem[0] == idShareName:
+            return elem[1]
+    return 'Error, don\'t find name'
+
+
 class MainScreen(BoxLayout, Screen):
     data = [
-        {'name.text': ''.join("item %i" % x)}
+        {'name.text': ''.join(idShares[x][0])}
         for x in range(50)]
 
 
@@ -102,11 +122,14 @@ class GraphScreen(Screen):
 class TestApp(App):
     sm = ScreenManager()
     ms = MainScreen(name='main')
+    gs = GraphScreen(name='graph')
     sm.add_widget(ms)
-    sm.add_widget(GraphScreen(name='graph'))
+    sm.add_widget(gs)
 
-    def transition(self):
+    def transition(self, btn):
         self.ms.manager.current = 'graph'
+        self.gs.nameShare = btn.text
+        self.gs.ids.nameShare.text = getFullNameShare(btn.text)
 
     def build(self):
         return self.sm
