@@ -1,6 +1,10 @@
 from kivy.app import App
 from kivy.lang import Builder
+from kivy.properties import BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.label import Label
+from kivy.uix.recycleview.views import RecycleDataViewBehavior
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 kv = """
 <Row@RecycleKVIDsDataViewBehavior+BoxLayout>:
@@ -13,8 +17,9 @@ kv = """
     value: ''
     Button:
         id: name
+        on_press: app.transition()
 
-<Test>:
+<MainScreen>:
     canvas:
         Color:
             rgba: 0.3, 0.3, 0.3, 1
@@ -36,7 +41,7 @@ kv = """
         scroll_wheel_distance: dp(114)
         bar_width: dp(10)
         viewclass: 'Row'
-        data: app.data
+        data: root.data
         RecycleBoxLayout:
             default_size: None, dp(56)
             default_size_hint: 1, None
@@ -56,45 +61,54 @@ kv = """
                 text: 'Button 2'
             Button:
                 text: 'Button 3'
+                
+<GraphScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint: [1, 0.15]
+            Button:
+                text: 'Back'
+                size_hint: [0.1, 1]
+                on_press: root.manager.current = 'main'
+            Label:
+                text: 'Наименование'  
+        Label:
+            text: 'График'  
+        BoxLayout:
+            size_hint: [1, 0.1]
+            Button:
+                text: 'Button 1'
+            Button:
+                text: 'Button 2'
+            Button:
+                text: 'Button 3'
 """
 
 Builder.load_string(kv)
 
 
-class Test(BoxLayout):
+class MainScreen(BoxLayout, Screen):
+    data = [
+        {'name.text': ''.join("item %i" % x)}
+        for x in range(50)]
+
+
+class GraphScreen(Screen):
     pass
-    # def populate(self):
-    #     self.rv.data = [
-    #         {'name.text': ''.join(sample(ascii_lowercase, 6)),
-    #          'value': str(randint(0, 2000))}
-    #         for x in range(50)]
-    #
-    # def sort(self):
-    #     self.rv.data = sorted(self.rv.data, key=lambda x: x['name.text'])
-    #
-    # def clear(self):
-    #     self.rv.data = []
-    #
-    # def insert(self, value):
-    #     self.rv.data.insert(0, {
-    #         'name.text': value or 'default value', 'value': 'unknown'})
-    #
-    # def update(self, value):
-    #     if self.rv.data:
-    #         self.rv.data[0]['name.text'] = value or 'default new value'
-    #         self.rv.refresh_from_data()
-    #
-    # def remove(self):
-    #     if self.rv.data:
-    #         self.rv.data.pop(0)
 
 
 class TestApp(App):
-    data = [
-        {'name.text': ''.join("item %i" % x),}
-        for x in range(50)]
+    sm = ScreenManager()
+    ms = MainScreen(name='main')
+    sm.add_widget(ms)
+    sm.add_widget(GraphScreen(name='graph'))
+
+    def transition(self):
+        self.ms.manager.current = 'graph'
+
     def build(self):
-        return Test()
+        return self.sm
 
 
 if __name__ == '__main__':
