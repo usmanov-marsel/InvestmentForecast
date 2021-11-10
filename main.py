@@ -56,11 +56,11 @@ kv = """
         size_hint: [1, 0.1]
         BoxLayout:
             Button:
-                text: 'Button 1'
+                text: 'Главная'
             Button:
-                text: 'Button 2'
+                text: 'Избранное'
             Button:
-                text: 'Button 3'
+                text: 'Настройки'
                 
 <GraphScreen>:
     BoxLayout:
@@ -78,11 +78,12 @@ kv = """
         BoxLayout:
             size_hint: [1, 0.1]
             Button:
-                text: 'Button 1'
+                text: 'Главная'
+                on_press: root.manager.current = 'main'
             Button:
-                text: 'Button 2'
+                text: 'Избранное'
             Button:
-                text: 'Button 3'
+                text: 'Настройки'
 """
 
 Builder.load_string(kv)
