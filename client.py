@@ -6,7 +6,9 @@ import urllib.request
 
 requests = {
     'history_secs': 'http://iss.moex.com/iss/history/engines/%(engine)s/markets/%(market)s/boards/%(board)s/securities.json?date=%(date)s',
-    'sec_list': 'http://iss.moex.com/iss/securities.json?market=%(market)s'}
+    'sec_list': 'http://iss.moex.com/iss/securities.json?market=%(market)s',
+    'sec_info': 'http://iss.moex.com/iss/securities/%(secid)s.json',
+    'sec_prices': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities/%(secid)s/candles.json?interval=31'}
 
 
 class Config:
@@ -98,7 +100,7 @@ class MicexISSClient:
             start = start + cnt
         return True
 
-    def get_sec_list(self, market, limit, searchtext = ''):
+    def get_sec_list(self, market, limit, searchtext=''):
         """ получить и пропарсить список всех ценных бумаг
             на торговой системе (engine), рынке (market)
         """
@@ -123,9 +125,58 @@ class MicexISSClient:
             start = start + cnt
         return True
 
+    def get_sec_info(self, secid):
+        """ получить информацию об инструменте
+        """
+        url = requests['sec_info'] % {'secid': secid}
+        res = self.opener.open(url)
+        jres = json.load(res)
+        jbrd = jres['boards']
+        jdata = jbrd['data']
+        jcols = jbrd['columns']
+        boardIdx = jcols.index('boardid')
+        marketIdx = jcols.index('market')
+        engineIdx = jcols.index('engine')
+        histFromIdx = jcols.index('history_from')
+        histTillIdx = jcols.index('history_till')
+        currencyIdx = jcols.index('currencyid')
+
+        result = [(jdata[0][boardIdx],
+                   jdata[0][marketIdx],
+                   jdata[0][engineIdx],
+                   jdata[0][histFromIdx],
+                   jdata[0][histTillIdx],
+                   jdata[0][currencyIdx])]
+        self.handler.do(result)
+        cnt = len(jdata)
+        return True
+
+    def get_sec_prices(self, engine, market, secid):
+        url = requests['sec_prices'] % {'engine': engine,
+                                        'market': market,
+                                        'secid': secid}
+        start = 0
+        cnt = 1
+        while cnt > 0:
+            res = self.opener.open(url + '&start=' + str(start))
+            jres = json.load(res)
+            jsec = jres['candles']
+            jdata = jsec['data']
+            jcols = jsec['columns']
+            priceIdx = jcols.index('close')
+            dateIdx = jcols.index('end')
+
+            result = []
+            for sec in jdata:
+                result.append((sec[dateIdx],
+                               sec[priceIdx]))
+            self.handler.do(result)
+            cnt = len(jdata)
+            start = start + cnt
+        return True
+
 
 def del_null(num):
     """ заменяет null на 0
     """
     return 0 if num is None else num
-
