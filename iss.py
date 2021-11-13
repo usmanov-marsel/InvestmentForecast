@@ -12,13 +12,11 @@ class MyData:
     def __init__(self):
         self.history = []
 
-    def print_sec_list(self):
-        print("=" * 69)
-        print("|%15s|%30s||" % ("SECID", "SECNAME"))
-        print("=" * 69)
+    def print_stuff(self):
+        print("=" * 44)
         for sec in self.history:
-            print("|%15s|%50s|" % (sec[0], sec[1]))
-        print("=" * 69)
+            print("|%20s|%20s|" % (sec[0], sec[1]))
+        print("=" * 44)
 
 
 class MyDataHandler(MicexISSDataHandler):
@@ -33,10 +31,12 @@ def main():
     my_config = Config(user='', password='')
     my_auth = MicexAuth(my_config)
     iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
+    engine = 'stock'
     market = 'shares'
+    secid = 'ABRD'
     limit = 50
-    iss.get_sec_list(market, limit)
-    iss.handler.data.print_sec_list()
+    iss.get_sec_prices(engine, market, secid)
+    iss.handler.data.print_stuff()
 
 
 if __name__ == '__main__':
