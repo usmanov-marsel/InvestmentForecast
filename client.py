@@ -131,8 +131,8 @@ class MicexISSClient:
         """ получить и пропарсить список всех ценных бумаг
             на торговой системе (engine), рынке (market)
         """
-        url = requests['sec_list'] % {'engine': engine,
-                                      'market': market}
+        url = requests['sec_list_search'] % {'engine': engine,
+                                             'market': market}
         start = 0
         cnt = 1
         while cnt > 0 and start < limit:
