@@ -6,7 +6,7 @@ import urllib.request
 
 requests = {
     'history_secs': 'http://iss.moex.com/iss/history/engines/%(engine)s/markets/%(market)s/boards/%(board)s/securities.json?date=%(date)s',
-    'sec_list': 'http://iss.moex.com/iss/securities.json?market=%(market)s',
+    'sec_list': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities.json',
     'sec_info': 'http://iss.moex.com/iss/securities/%(secid)s.json',
     'sec_prices': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities/%(secid)s/candles.json?interval=31'}
 
@@ -100,21 +100,22 @@ class MicexISSClient:
             start = start + cnt
         return True
 
-    def get_sec_list(self, market, limit, searchtext=''):
+    def get_sec_list(self, engine, market, limit, searchtext=''):
         """ получить и пропарсить список всех ценных бумаг
             на торговой системе (engine), рынке (market)
         """
-        url = requests['sec_list'] % {'market': market}
+        url = requests['sec_list'] % {'engine': engine,
+                                      'market': market}
         start = 0
         cnt = 1
         while cnt > 0 and start < limit:
-            res = self.opener.open(url + '&start=' + str(start) + '&q=' + searchtext)
+            res = self.opener.open(url + '?start=' + str(start) + '&q=' + searchtext)
             jres = json.load(res)
             jsec = jres['securities']
             jdata = jsec['data']
             jcols = jsec['columns']
-            secIdx = jcols.index('secid')
-            nameIdx = jcols.index('name')
+            secIdx = jcols.index('SECID')
+            nameIdx = jcols.index('SECNAME')
 
             result = []
             for sec in jdata:
