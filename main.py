@@ -2,6 +2,7 @@ from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.core.window import Window
 from client import *
 from iss import MyDataHandler, MyData
 
@@ -16,23 +17,31 @@ kv = """
     value: ''
     Button:
         id: name
+        background_normal: ''
+        background_color: (1.0, 1.0, 1.0, 1.0)
+        color: (0.0, 0.0, 0.0, 1.0)
         on_press: app.transition(self)
 
 <MainScreen>:
     canvas:
         Color:
-            rgba: 0.3, 0.3, 0.3, 1
+            rgba: 0.8, 0.8, 0.8, 1
         Rectangle:
             size: self.size
             pos: self.pos
     rv: rv
     orientation: 'vertical'
     AnchorLayout:
-        size_hint: [1, 0.15]
+        size_hint: [1, 0.2]
         anchor_x: "right"
         anchor_y: "top"
+        Image:
+            source: 'header.png'
+            keep_ratio: False
+            allow_stretch: True
         Label:
             text: "Главная"
+            font_size: 25
         TextInput:
             id: searchText
             multiline: False
@@ -58,14 +67,41 @@ kv = """
     AnchorLayout:
         anchor_x: "center"
         anchor_y: "bottom"
-        size_hint: [1, 0.1]
+        size_hint: [1, 0.12]
         BoxLayout:
             Button:
                 text: 'Главная'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                Image:
+                    source: 'home.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
             Button:
                 text: 'Избранное'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                Image:
+                    source: 'fav.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
             Button:
                 text: 'Настройки'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                Image:
+                    source: 'settings.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
                                 
 <GraphScreen>:
     BoxLayout:
@@ -106,6 +142,7 @@ def getCompanyShares():
 
 
 idShares = getCompanyShares()
+Window.size = (480, 854)
 
 
 def getFullNameShare(idShareName):
