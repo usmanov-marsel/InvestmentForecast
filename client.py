@@ -136,7 +136,7 @@ class MicexISSClient:
         start = 0
         cnt = 1
         while cnt > 0 and start < limit:
-            res = self.opener.open(url + '&start=' + str(start) + '&q=' + searchtext)
+            res = self.opener.open(url + '&start=' + str(start) + '&q=' + urllib.parse.quote(searchtext))
             jres = json.load(res)
             jsec = jres['securities']
             jdata = jsec['data']
