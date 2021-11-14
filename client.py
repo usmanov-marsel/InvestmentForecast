@@ -98,7 +98,7 @@ class MicexISSClient:
             start = start + cnt
         return True
 
-    def get_sec_list(self, market, limit):
+    def get_sec_list(self, market, limit, searchtext=''):
         """ получить и пропарсить список всех ценных бумаг
             на торговой системе (engine), рынке (market)
         """
@@ -106,7 +106,7 @@ class MicexISSClient:
         start = 0
         cnt = 1
         while cnt > 0 and start < limit:
-            res = self.opener.open(url + '&start=' + str(start))
+            res = self.opener.open(url + '&start=' + str(start) + '&q=' + searchtext)
             jres = json.load(res)
             jsec = jres['securities']
             jdata = jsec['data']

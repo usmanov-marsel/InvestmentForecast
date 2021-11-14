@@ -31,12 +31,18 @@ kv = """
     rv: rv
     orientation: 'vertical'
     AnchorLayout:
-        anchor_x: "center"
-        anchor_y: "top"
         size_hint: [1, 0.15]
+        anchor_x: "right"
+        anchor_y: "top"
         Label:
             text: "Главная"
-
+        TextInput:
+            id: searchText
+            multiline: False
+            hint_text: 'search'
+            size_hint: [0.25, 0.6]
+            on_text_validate: app.on_enter(self)
+            
     RecycleView:
         id: rv
         scroll_type: ['bars', 'content']
@@ -51,7 +57,7 @@ kv = """
             height: self.minimum_height
             orientation: 'vertical'
             spacing: dp(2)
-
+    
     AnchorLayout:
         anchor_x: "center"
         anchor_y: "bottom"
@@ -63,7 +69,7 @@ kv = """
                 text: 'Избранное'
             Button:
                 text: 'Настройки'
-                
+                                
 <GraphScreen>:
     BoxLayout:
         orientation: 'vertical'
@@ -100,13 +106,25 @@ def getCompanyShares():
     iss.get_sec_list(market, limit)
     return iss.handler.data.history
 
+
 idShares = getCompanyShares()
+
 
 def getFullNameShare(idShareName):
     for elem in idShares:
         if elem[0] == idShareName:
             return elem[1]
     return 'Error, don\'t find name'
+
+
+def getTextMultiline(text):
+    if len(text) > 50:
+        for i in range(49, 0, -1):
+            if text[i] == ' ':
+                text = text[:i] + '\n' + text[i + 1:]
+                return text
+    else:
+        return text
 
 
 class MainScreen(BoxLayout, Screen):
@@ -126,10 +144,20 @@ class TestApp(App):
     sm.add_widget(ms)
     sm.add_widget(gs)
 
+    def on_enter(self, textInput):
+        my_config = Config(user='', password='')
+        my_auth = MicexAuth(my_config)
+        iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
+        iss.get_sec_list('shares', 50, textInput.text)
+        iss.handler.data.print_sec_list()
+        # nameShare = textInput.text
+        # if nameShare in list(names[0] for names in idShares):
+        #     self.ms.manager.current = 'graph'
+        #     self.gs.ids.nameShare.text = getFullNameShare(nameShare)
+
     def transition(self, btn):
         self.ms.manager.current = 'graph'
-        self.gs.nameShare = btn.text
-        self.gs.ids.nameShare.text = getFullNameShare(btn.text)
+        self.gs.ids.nameShare.text = getTextMultiline(getFullNameShare(btn.text))
 
     def build(self):
         return self.sm
