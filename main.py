@@ -92,9 +92,10 @@ def getCompanyShares():
     my_config = Config(user='', password='')
     my_auth = MicexAuth(my_config)
     iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
+    engine = 'stock'
     market = 'shares'
     limit = 50
-    iss.get_sec_list(market, limit)
+    iss.get_sec_list(engine, market, limit)
     return iss.handler.data.history
 
 
