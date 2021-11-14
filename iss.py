@@ -35,7 +35,7 @@ def main():
     market = 'shares'
     secid = 'ABRD'
     limit = 50
-    iss.get_sec_prices(engine, market, secid)
+    iss.search_sec_list(engine, market, limit, searchtext='abrd')
     iss.handler.data.print_stuff()
 
 

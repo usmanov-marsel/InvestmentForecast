@@ -136,7 +136,7 @@ class MicexISSClient:
         start = 0
         cnt = 1
         while cnt > 0 and start < limit:
-            res = self.opener.open(url + '?start=' + str(start) + '&q=' + searchtext)
+            res = self.opener.open(url + '&start=' + str(start) + '&q=' + searchtext)
             jres = json.load(res)
             jsec = jres['securities']
             jdata = jsec['data']
@@ -146,9 +146,9 @@ class MicexISSClient:
 
             result = []
             for sec in jdata:
-                if not result.index(sec[secIdx]):
-                    result.append((sec[secIdx],
-                                   sec[nameIdx]))
+                result.append((sec[secIdx],
+                               sec[nameIdx]))
+            result = list(set(result))
             self.handler.do(result)
             cnt = len(jdata)
             start = start + cnt
