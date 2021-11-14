@@ -7,6 +7,7 @@ import urllib.request
 requests = {
     'history_secs': 'http://iss.moex.com/iss/history/engines/%(engine)s/markets/%(market)s/boards/%(board)s/securities.json?date=%(date)s',
     'sec_list': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities.json',
+    'sec_list_search': 'http://iss.moex.com/iss/securities.json?engine=%(engine)s&market=%(market)s',
     'sec_info': 'http://iss.moex.com/iss/securities/%(secid)s.json',
     'sec_prices': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities/%(secid)s/candles.json?interval=31'}
 
@@ -100,7 +101,33 @@ class MicexISSClient:
             start = start + cnt
         return True
 
-    def get_sec_list(self, engine, market, limit, searchtext=''):
+    def get_sec_list(self, engine, market, limit):
+        """ получить и пропарсить список всех ценных бумаг
+            на торговой системе (engine), рынке (market)
+        """
+        url = requests['sec_list'] % {'engine': engine,
+                                      'market': market}
+        start = 0
+        cnt = 1
+        while cnt > 0 and start < limit:
+            res = self.opener.open(url + '?start=' + str(start))
+            jres = json.load(res)
+            jsec = jres['securities']
+            jdata = jsec['data']
+            jcols = jsec['columns']
+            secIdx = jcols.index('SECID')
+            nameIdx = jcols.index('SECNAME')
+
+            result = []
+            for sec in jdata:
+                result.append((sec[secIdx],
+                               sec[nameIdx]))
+            self.handler.do(result)
+            cnt = len(jdata)
+            start = start + cnt
+        return True
+
+    def search_sec_list(self, engine, market, limit, searchtext=''):
         """ получить и пропарсить список всех ценных бумаг
             на торговой системе (engine), рынке (market)
         """
@@ -114,13 +141,14 @@ class MicexISSClient:
             jsec = jres['securities']
             jdata = jsec['data']
             jcols = jsec['columns']
-            secIdx = jcols.index('SECID')
-            nameIdx = jcols.index('SECNAME')
+            secIdx = jcols.index('secid')
+            nameIdx = jcols.index('name')
 
             result = []
             for sec in jdata:
-                result.append((sec[secIdx],
-                               sec[nameIdx]))
+                if not result.index(sec[secIdx]):
+                    result.append((sec[secIdx],
+                                   sec[nameIdx]))
             self.handler.do(result)
             cnt = len(jdata)
             start = start + cnt
