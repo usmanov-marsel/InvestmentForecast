@@ -180,10 +180,29 @@ class TestApp(App):
     sm.add_widget(gs)
 
     def on_enter(self, textInput):
-        nameShare = textInput.text
-        if nameShare in list(names[0] for names in idShares):
-            self.ms.manager.current = 'graph'
-            self.gs.ids.nameShare.text = getFullNameShare(nameShare)
+        if textInput.text == '':
+            self.ms.data = [
+                {'name.text': ''.join(idShares[x][0])} for x in range(50)
+            ]
+            self.ms.ids.rv.data = self.ms.data
+        else:
+            my_config = Config(user='', password='')
+            my_auth = MicexAuth(my_config)
+            iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
+            engine = 'stock'
+            market = 'shares'
+            limit = 50
+            iss.handler.data.history.clear()
+            iss.search_sec_list(engine, market, limit, textInput.text)
+            names = iss.handler.data.history
+            self.ms.data = [
+                {'name.text': ''.join(names[x][0])} for x in range(0, len(names))
+            ]
+            self.ms.ids.rv.data = self.ms.data
+        # nameShare = textInput.text
+        # if nameShare in list(names[0] for names in idShares):
+        #     self.ms.manager.current = 'graph'
+        #     self.gs.ids.nameShare.text = getFullNameShare(nameShare)
 
     def transition(self, btn):
         self.ms.manager.current = 'graph'
