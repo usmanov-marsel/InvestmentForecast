@@ -1,9 +1,6 @@
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.properties import BooleanProperty
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
-from kivy.uix.recycleview.views import RecycleDataViewBehavior
 from kivy.uix.screenmanager import ScreenManager, Screen
 from client import *
 from iss import MyDataHandler, MyData
@@ -101,9 +98,10 @@ def getCompanyShares():
     my_config = Config(user='', password='')
     my_auth = MicexAuth(my_config)
     iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
+    engine = 'stock'
     market = 'shares'
     limit = 50
-    iss.get_sec_list(market, limit)
+    iss.get_sec_list(engine, market, limit)
     return iss.handler.data.history
 
 
@@ -114,7 +112,7 @@ def getFullNameShare(idShareName):
     for elem in idShares:
         if elem[0] == idShareName:
             return elem[1]
-    return 'Error, don\'t find name'
+    return 'Error, can\'t find name'
 
 
 def getTextMultiline(text):
