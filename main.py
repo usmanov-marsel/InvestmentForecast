@@ -143,15 +143,10 @@ class TestApp(App):
     sm.add_widget(gs)
 
     def on_enter(self, textInput):
-        my_config = Config(user='', password='')
-        my_auth = MicexAuth(my_config)
-        iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
-        iss.get_sec_list('shares', 50, textInput.text)
-        iss.handler.data.print_sec_list()
-        # nameShare = textInput.text
-        # if nameShare in list(names[0] for names in idShares):
-        #     self.ms.manager.current = 'graph'
-        #     self.gs.ids.nameShare.text = getFullNameShare(nameShare)
+        nameShare = textInput.text
+        if nameShare in list(names[0] for names in idShares):
+            self.ms.manager.current = 'graph'
+            self.gs.ids.nameShare.text = getFullNameShare(nameShare)
 
     def transition(self, btn):
         self.ms.manager.current = 'graph'
