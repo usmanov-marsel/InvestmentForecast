@@ -45,10 +45,9 @@ kv = """
         TextInput:
             id: searchText
             multiline: False
-            hint_text: 'search'
-            size_hint: [0.25, 0.6]
+            hint_text: 'Поиск'
+            size_hint: [0.25, 0.3]
             on_text_validate: app.on_enter(self)
-            
     RecycleView:
         id: rv
         scroll_type: ['bars', 'content']
@@ -104,27 +103,73 @@ kv = """
                     y: self.parent.y + 5
                                 
 <GraphScreen>:
+    canvas:
+        Color:
+            rgba: 0.8, 0.8, 0.8, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
     BoxLayout:
         orientation: 'vertical'
-        BoxLayout:
-            size_hint: [1, 0.15]
-            Button:
-                text: 'Back'
-                size_hint: [0.1, 1]
-                on_press: root.manager.current = 'main'
+        AnchorLayout:
+            size_hint: [1, 0.2]
+            anchor_x: "left"
+            anchor_y: "top"
+            Image:
+                source: 'icons/header.png'
+                keep_ratio: False
+                allow_stretch: True 
             Label:
-                id: nameShare  
+                id: nameShare
+                font_size: 25
+            Button:
+                size_hint: [0.1, 1]
+                background_normal: ''
+                background_color: (0.26, 0.36, 0.58, 0.0)
+                on_press: root.manager.current = 'main'
+                Image:
+                    source: 'icons/back.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y
         Label:
-            text: 'График'  
+            text: 'График' 
+            color: (0.26, 0.36, 0.58, 1.0)
         BoxLayout:
-            size_hint: [1, 0.1]
+            size_hint: [1, 0.12]
             Button:
                 text: 'Главная'
-                on_press: root.manager.current = 'main'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                Image:
+                    source: 'icons/home.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
             Button:
                 text: 'Избранное'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                Image:
+                    source: 'icons/fav.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
             Button:
                 text: 'Настройки'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                Image:
+                    source: 'icons/settings.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
 """
 
 Builder.load_string(kv)
