@@ -2,7 +2,6 @@ from iss import *
 from client import Config
 from client import MicexAuth
 from client import MicexISSClient
-from datetime import datetime
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
 
@@ -19,7 +18,7 @@ def main():
     datetimes = []
     prices = []
     for point in history:
-        datetimes.append(datetime.strptime(point[0], '%Y-%m-%d %X'))
+        datetimes.append(point[0])
         prices.append(point[1])
     datetimes = dates.date2num(datetimes)
     fig, graph = plt.subplots()
@@ -27,7 +26,6 @@ def main():
     graph.set(xlabel='date', ylabel='close price', title=secid)
     graph.grid()
     plt.show()
-
 
 
 if __name__ == '__main__':

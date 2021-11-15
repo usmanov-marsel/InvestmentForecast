@@ -3,6 +3,7 @@ import json
 import urllib.error
 import urllib.parse
 import urllib.request
+from datetime import datetime
 
 requests = {
     'history_secs': 'http://iss.moex.com/iss/history/engines/%(engine)s/markets/%(market)s/boards/%(board)s/securities.json?date=%(date)s',
@@ -194,11 +195,17 @@ class MicexISSClient:
             jcols = jsec['columns']
             priceIdx = jcols.index('close')
             dateIdx = jcols.index('end')
-
             result = []
+            lastdate = datetime(1, 1, 1)
             for sec in jdata:
-                result.append((sec[dateIdx],
-                               sec[priceIdx]))
+                date = datetime.strptime(sec[dateIdx], '%Y-%m-%d %X')
+                if date > lastdate:
+                    result.append((date,
+                                   sec[priceIdx]))
+                    lastdate = date
+                else:
+                    self.handler.do(result)
+                    return True
             self.handler.do(result)
             cnt = len(jdata)
             start = start + cnt
