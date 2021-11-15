@@ -36,7 +36,7 @@ kv = """
         anchor_x: "right"
         anchor_y: "top"
         Image:
-            source: 'header.png'
+            source: 'icons/header.png'
             keep_ratio: False
             allow_stretch: True
         Label:
@@ -76,7 +76,7 @@ kv = """
                 background_normal: ''
                 background_color: (1.0, 1.0, 1.0, 1.0)
                 Image:
-                    source: 'home.png'
+                    source: 'icons/home.png'
                     size: self.parent.size
                     x: self.parent.x
                     y: self.parent.y + 5
@@ -87,7 +87,7 @@ kv = """
                 background_normal: ''
                 background_color: (1.0, 1.0, 1.0, 1.0)
                 Image:
-                    source: 'fav.png'
+                    source: 'icons/fav.png'
                     size: self.parent.size
                     x: self.parent.x
                     y: self.parent.y + 5
@@ -98,7 +98,7 @@ kv = """
                 background_normal: ''
                 background_color: (1.0, 1.0, 1.0, 1.0)
                 Image:
-                    source: 'settings.png'
+                    source: 'icons/settings.png'
                     size: self.parent.size
                     x: self.parent.x
                     y: self.parent.y + 5
