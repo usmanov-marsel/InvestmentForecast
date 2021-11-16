@@ -3,8 +3,12 @@ from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+import matplotlib.dates as dates
 from client import *
 from iss import MyDataHandler, MyData
+from matplotlib import pyplot as plt
+import numpy as np
+from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 
 kv = """
 <Row@RecycleKVIDsDataViewBehavior+BoxLayout>:
@@ -132,9 +136,8 @@ kv = """
                     size: self.parent.size
                     x: self.parent.x
                     y: self.parent.y
-        Label:
-            text: 'График' 
-            color: (0.26, 0.36, 0.58, 1.0)
+        AnchorLayout:
+            id: graphLayout
         BoxLayout:
             size_hint: [1, 0.12]
             Button:
@@ -214,7 +217,11 @@ class MainScreen(BoxLayout, Screen):
 
 
 class GraphScreen(Screen):
-    pass
+    my_config = Config(user='', password='')
+    my_auth = MicexAuth(my_config)
+    iss = MicexISSClient(my_config, my_auth, MyDataHandler, MyData)
+    engine = 'stock'
+    market = 'shares'
 
 
 class TestApp(App):
@@ -252,6 +259,22 @@ class TestApp(App):
     def transition(self, btn):
         self.ms.manager.current = 'graph'
         self.gs.ids.nameShare.text = getTextMultiline(getFullNameShare(btn.text))
+        plt.clf()
+        self.gs.iss.handler.data .history.clear()
+        secid = btn.text
+        self.gs.iss.get_sec_prices(self.gs.engine, self.gs.market, secid)
+        history = self.gs.iss.handler.data.history
+        datetimes = []
+        prices = []
+        for point in history:
+            datetimes.append(point[0])
+            prices.append(point[1])
+        datetimes = dates.date2num(datetimes)
+        fig, graph = plt.subplots()
+        graph.plot_date(datetimes, prices, ms=0.1, lw=2, ls='-')
+        graph.set(xlabel='date', ylabel='close price', title=secid)
+        graph.grid()
+        self.gs.ids.graphLayout.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
     def build(self):
         return self.sm
