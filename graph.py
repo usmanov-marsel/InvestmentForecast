@@ -8,12 +8,12 @@ import matplotlib.dates as dates
 from numpy import polyfit, poly1d
 
 currentdate = datetime.now().date()
-
+futuredate = date(currentdate.year + 3, currentdate.month, 1)
 
 def extrapolate(datetimes, prices, power=1):
     fit = polyfit(datetimes, prices, power)
     line = poly1d(fit)
-    new_points = dates.drange(currentdate, date(currentdate.year + 3, currentdate.month, 1), timedelta(days=30))
+    new_points = dates.drange(currentdate, futuredate, timedelta(days=30))
     return new_points.tolist(), line
 
 
