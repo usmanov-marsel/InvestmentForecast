@@ -109,11 +109,12 @@ kv = """
 <GraphScreen>:
     canvas:
         Color:
-            rgba: 0.8, 0.8, 0.8, 1
+            rgba: 1.0, 1.0, 1.0, 1
         Rectangle:
             size: self.size
             pos: self.pos
     BoxLayout:
+        id: screen
         orientation: 'vertical'
         AnchorLayout:
             size_hint: [1, 0.2]
@@ -136,8 +137,40 @@ kv = """
                     size: self.parent.size
                     x: self.parent.x
                     y: self.parent.y
-        AnchorLayout:
+        BoxLayout:
+            orientation: 'vertical'
             id: graphLayout
+            BoxLayout:
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                color: (0.0, 0.0, 0.0, 1.0)
+                pos_hint: {'top' : 1, 'right': .85}
+                size_hint: [0.7, 0.05]
+                Button:
+                    font_size: dp(20)
+                    background_normal: ''
+                    background_color: (0.34, 0.47, 0.63, 1.0)
+                    color: (0.0, 0.0, 0.0, 1.0)
+                    text: 'H'
+                    on_press: root.pressH()
+                Button:
+                    font_size: dp(20)
+                    background_normal: ''
+                    background_color: (0.34, 0.47, 0.63, 1.0)
+                    color: (0.0, 0.0, 0.0, 1.0)
+                    text: 'D'
+                Button:
+                    font_size: dp(20)
+                    background_normal: ''
+                    background_color: (0.34, 0.47, 0.63, 1.0)
+                    color: (0.0, 0.0, 0.0, 1.0)
+                    text: 'M'
+                Button:
+                    font_size: dp(20)
+                    background_normal: ''
+                    background_color: (0.34, 0.47, 0.63, 1.0)
+                    color: (0.0, 0.0, 0.0, 1.0)
+                    text: 'Y'
         BoxLayout:
             size_hint: [1, 0.12]
             Button:
@@ -223,6 +256,11 @@ class GraphScreen(Screen):
     engine = 'stock'
     market = 'shares'
 
+    def pressH(self):
+        self.iss.handler.data.history.clear()
+
+
+
 
 class TestApp(App):
     sm = ScreenManager()
@@ -260,7 +298,7 @@ class TestApp(App):
         self.ms.manager.current = 'graph'
         self.gs.ids.nameShare.text = getTextMultiline(getFullNameShare(btn.text))
         plt.clf()
-        self.gs.iss.handler.data .history.clear()
+        self.gs.iss.handler.data.history.clear()
         secid = btn.text
         self.gs.iss.get_sec_prices(self.gs.engine, self.gs.market, secid)
         history = self.gs.iss.handler.data.history
@@ -274,6 +312,8 @@ class TestApp(App):
         graph.plot_date(datetimes, prices, ms=0.1, lw=2, ls='-')
         graph.set(xlabel='date', ylabel='close price', title=secid)
         graph.grid()
+        if len(self.gs.ids.graphLayout.children) > 1:
+            self.gs.ids.graphLayout.remove_widget(self.gs.ids.graphLayout.children[0])
         self.gs.ids.graphLayout.add_widget(FigureCanvasKivyAgg(plt.gcf()))
 
     def build(self):
