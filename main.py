@@ -1,13 +1,12 @@
+import os.path
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
-import matplotlib.dates as dates
-from client import *
+from numpy import savez as npsave, load as npload
+from graph import *
 from iss import MyDataHandler, MyData
-from matplotlib import pyplot as plt
-import numpy as np
 from kivy.garden.matplotlib.backend_kivyagg import FigureCanvasKivyAgg
 
 kv = """
@@ -45,7 +44,7 @@ kv = """
             allow_stretch: True
         Label:
             text: "Главная"
-            font_size: 25
+            font_size: '25sp'
         TextInput:
             id: searchText
             multiline: False
@@ -126,7 +125,7 @@ kv = """
                 allow_stretch: True 
             Label:
                 id: nameShare
-                font_size: 25
+                font_size: '25sp'
             Button:
                 size_hint: [0.1, 1]
                 background_normal: ''
@@ -300,16 +299,28 @@ class TestApp(App):
         plt.clf()
         self.gs.iss.handler.data.history.clear()
         secid = btn.text
-        self.gs.iss.get_sec_prices(self.gs.engine, self.gs.market, secid)
-        history = self.gs.iss.handler.data.history
-        datetimes = []
-        prices = []
-        for point in history:
-            datetimes.append(point[0])
-            prices.append(point[1])
-        datetimes = dates.date2num(datetimes)
+        cache_path = 'cache/' + secid + str(currentdate) + '.npz'
+        if os.path.isfile(cache_path):
+            with npload(cache_path) as cache:
+                datetimes = cache["arr_0"]
+                prices = cache["arr_1"]
+                datetimes_ex = cache["arr_2"]
+                prices_ex = cache["arr_3"]
+        else:
+            self.gs.iss.get_sec_prices(self.gs.engine, self.gs.market, secid)
+            history = self.gs.iss.handler.data.history
+            datetimes = []
+            prices = []
+            for point in history:
+                datetimes.append(dates.date2num(point[0]))
+                prices.append(point[1])
+            new_points, line = extrapolate(datetimes, prices, power=1)
+            datetimes_ex = datetimes + new_points
+            prices_ex = line(datetimes_ex)
+            npsave(cache_path, datetimes, prices, datetimes_ex, prices_ex)
         fig, graph = plt.subplots()
-        graph.plot_date(datetimes, prices, ms=0.1, lw=2, ls='-')
+        graph.plot_date(datetimes, prices, 'b', ms=0.1, lw=1.5, ls='-')
+        graph.plot_date(datetimes_ex, prices_ex, 'r', ms=0.1, lw=2, ls='-')
         graph.set(xlabel='date', ylabel='close price', title=secid)
         graph.grid()
         if len(self.gs.ids.graphLayout.children) > 1:

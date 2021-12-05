@@ -10,7 +10,7 @@ requests = {
     'sec_list': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities.json',
     'sec_list_search': 'http://iss.moex.com/iss/securities.json?engine=%(engine)s&market=%(market)s',
     'sec_info': 'http://iss.moex.com/iss/securities/%(secid)s.json',
-    'sec_prices': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities/%(secid)s/candles.json?interval=31'}
+    'sec_prices': 'http://iss.moex.com/iss/engines/%(engine)s/markets/%(market)s/securities/%(secid)s/candles.json?interval=24'}
 
 
 class Config:
@@ -178,7 +178,6 @@ class MicexISSClient:
                    jdata[0][histTillIdx],
                    jdata[0][currencyIdx])]
         self.handler.do(result)
-        cnt = len(jdata)
         return True
 
     def get_sec_prices(self, engine, market, secid):
