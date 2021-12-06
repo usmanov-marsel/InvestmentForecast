@@ -424,11 +424,14 @@ class TestApp(App):
         graph.plot_date(datetimes, prices, 'b', ms=0.1, lw=1.5, ls='-')
         graph.plot_date(datetimes_ex, prices_ex, 'r', ms=0.1, lw=2, ls='-')
         graph.set(xlabel='date', ylabel='close price', title=secid)
+        locator = dates.AutoDateLocator()
+        formatter = dates.ConciseDateFormatter(locator)
+        graph.xaxis.set_major_locator(locator)
+        graph.xaxis.set_major_formatter(formatter)
         graph.grid()
         if len(self.gs.ids.graphLayout.children) > 1:
             self.gs.ids.graphLayout.remove_widget(self.gs.ids.graphLayout.children[0])
         self.gs.ids.graphLayout.add_widget(FigureCanvasKivyAgg(plt.gcf()))
-
 
     def transition(self, btn):
         self.ms.manager.current = 'graph'
