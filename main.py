@@ -79,6 +79,7 @@ kv = """
                 color: (0.26, 0.36, 0.58, 1.0)
                 background_normal: ''
                 background_color: (1.0, 1.0, 1.0, 1.0)
+                on_press: root.manager.current = 'main'
                 Image:
                     source: 'icons/home.png'
                     size: self.parent.size
@@ -90,6 +91,8 @@ kv = """
                 color: (0.26, 0.36, 0.58, 1.0)
                 background_normal: ''
                 background_color: (1.0, 1.0, 1.0, 1.0)
+                on_press: 
+                    root.manager.current = 'fav'
                 Image:
                     source: 'icons/fav.png'
                     size: self.parent.size
@@ -117,10 +120,8 @@ kv = """
     BoxLayout:
         id: screen
         orientation: 'vertical'
-        AnchorLayout:
+        RelativeLayout:
             size_hint: [1, 0.2]
-            anchor_x: "left"
-            anchor_y: "top"
             Image:
                 source: 'icons/header.png'
                 keep_ratio: False
@@ -135,6 +136,18 @@ kv = """
                 on_press: root.manager.current = 'main'
                 Image:
                     source: 'icons/back.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y
+            Button:
+                size_hint: [0.1, 1]
+                pos: self.parent.size[0] - self.size[0], 1
+                background_normal: ''
+                background_color: (0.26, 0.36, 0.58, 0.0)
+                on_press:
+                    root.addFav()
+                Image:
+                    source: 'icons/addtofav.png'
                     size: self.parent.size
                     x: self.parent.x
                     y: self.parent.y
@@ -223,6 +236,7 @@ kv = """
                 color: (0.26, 0.36, 0.58, 1.0)
                 background_normal: ''
                 background_color: (1.0, 1.0, 1.0, 1.0)
+                on_press: root.manager.current = 'main'
                 Image:
                     source: 'icons/home.png'
                     size: self.parent.size
@@ -234,6 +248,84 @@ kv = """
                 color: (0.26, 0.36, 0.58, 1.0)
                 background_normal: ''
                 background_color: (1.0, 1.0, 1.0, 1.0)
+                on_press: root.manager.current = 'fav'
+                Image:
+                    source: 'icons/fav.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
+            Button:
+                text: 'Настройки'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                Image:
+                    source: 'icons/settings.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
+                    
+<FavouritesScreen>:
+    canvas:
+        Color:
+            rgba: 0.8, 0.8, 0.8, 1
+        Rectangle:
+            size: self.size
+            pos: self.pos
+    rv: rv1
+    orientation: 'vertical'
+    AnchorLayout:
+        size_hint: [1, 0.2]
+        anchor_x: "right"
+        anchor_y: "top"
+        Image:
+            source: 'icons/header.png'
+            keep_ratio: False
+            allow_stretch: True
+        Label:
+            text: "Избранное"
+            font_size: '25sp'
+    RecycleView:
+        id: rv1
+        scroll_type: ['bars', 'content']
+        scroll_wheel_distance: dp(114)
+        bar_width: dp(10)
+        viewclass: 'Row'
+        data: root.data1
+        RecycleBoxLayout:
+            default_size: None, dp(56)
+            default_size_hint: 1, None
+            size_hint_y: None
+            height: self.minimum_height
+            orientation: 'vertical'
+            spacing: dp(2)
+    
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "bottom"
+        size_hint: [1, 0.12]
+        BoxLayout:
+            Button:
+                text: 'Главная'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                on_press: root.manager.current = 'main'
+                Image:
+                    source: 'icons/home.png'
+                    size: self.parent.size
+                    x: self.parent.x
+                    y: self.parent.y + 5
+            Button:
+                text: 'Избранное'
+                text_size: None, self.height
+                color: (0.26, 0.36, 0.58, 1.0)
+                background_normal: ''
+                background_color: (1.0, 1.0, 1.0, 1.0)
+                on_press: 
+                    root.manager.current = 'fav'
                 Image:
                     source: 'icons/fav.png'
                     size: self.parent.size
@@ -292,6 +384,7 @@ isD = False
 isM = False
 isY = True
 
+
 class MainScreen(BoxLayout, Screen):
     data = [
         {'name.text': ''.join(idShares[x][0])}
@@ -348,13 +441,45 @@ class GraphScreen(Screen):
         self.power = 3
         TestApp.updateGraph(App.get_running_app())
 
+    def addFav(self):
+        if not os.path.exists('cache'):
+            os.mkdir('cache')
+        with open("cache/fav.txt", "r") as f:
+            lines = f.readlines()
+        if self.nowsecid + '\n' in lines:
+            with open("cache/fav.txt", "w") as f:
+                for line in lines:
+                    if line.strip("\n") != self.nowsecid:
+                        f.write(line)
+        else:
+            with open("cache/fav.txt", "a+") as f:
+                f.write(self.nowsecid + '\n')
+
+
+class FavouritesScreen(BoxLayout, Screen):
+    data1 = []
+
+    def on_pre_enter(self):
+        if not os.path.exists('cache'):
+            os.mkdir('cache')
+        if not os.path.exists('cache/fav.txt'):
+            open("cache/fav.txt", "a+")
+        favFile = open("cache/fav.txt", "r+")
+        favList = favFile.read().rstrip('\n').split('\n')
+        self.data1 = [{'name.text': ''.join(i.rstrip())}
+                      for i in favList]
+        self.ids.rv1.data = self.data1
+        self.ids.rv1.refresh_from_data()
+
 
 class TestApp(App):
     sm = ScreenManager()
     ms = MainScreen(name='main')
     gs = GraphScreen(name='graph')
+    fs = FavouritesScreen(name='fav')
     sm.add_widget(ms)
     sm.add_widget(gs)
+    sm.add_widget(fs)
 
     def on_enter(self, textInput):
         if textInput.text == '':
