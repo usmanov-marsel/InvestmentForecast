@@ -147,8 +147,9 @@ class MicexISSClient:
 
             result = []
             for sec in jdata:
-                result.append((sec[secIdx],
-                               sec[nameIdx]))
+                if len(sec[secIdx]) < 6:
+                    result.append((sec[secIdx],
+                                   sec[nameIdx]))
             result = list(set(result))
             self.handler.do(result)
             cnt = len(jdata)
